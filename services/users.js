@@ -82,7 +82,9 @@ class UserService {
     if (msisdn) {
       searchParam.msisdn = Sanitizer.normalizeMSISDN(msisdn);
     }
-    if (msisdn && deviceId && cookieId) {
+    // if (msisdn && deviceId && cookieId) {      
+    if ((msisdn && deviceId) || (msisdn && cookieId) || (cookieId && deviceId)) {
+      
       response = this.elasticSearchClient.search({
         index: this.index,
         type: this.type,
@@ -91,31 +93,35 @@ class UserService {
             bool: {
               should: [
                 { match: { msisdn: searchParam.msisdn } },
+                { match: { cookieId: searchParam.cookieId } },
                 { match: { deviceId: searchParam.deviceId } },
-                { match: { cookieId: searchParam.cookieId } }
               ],
               minimum_should_match: 2
             }
           }
         }
       });
-    } else if (msisdn) {
-      searchParam = msisdn;
-    } else if (cookieId) {
-      searchParam = cookieId;
-    } else if (deviceId) {
-      searchParam = deviceId;
+      
+    }     
+    else {
+      if (msisdn) {
+        searchParam = msisdn;
+      } else if (cookieId) {
+        searchParam = cookieId;
+      } else if (deviceId) {
+        searchParam = deviceId;
+      }
+      searchParam = Sanitizer.getFormattedESQuery(null, searchParam);
+      response = this.elasticSearchClient.search({
+        index: this.index,
+        type: this.type,
+        body: searchParam
+      });
     }
-    searchParam = Sanitizer.getFormattedESQuery(null, searchParam);
-    response = this.elasticSearchClient.search({
-      index: this.index,
-      type: this.type,
-      body: searchParam
-    });
-
     return response.then((data) => {
       
       if (data.hits.total !== 0) {
+        console.log("Found Hits");
         // this.logger.info('Data found for this params. Updated with new params (if any)');
         const tagId = data.hits.hits[0]._id;
         return this.elasticSearchClient.update({
@@ -141,12 +147,14 @@ class UserService {
           }
         });
       }else{
-      }
+        console.log("Did not find hits");
+        console.log("Search Params: ", param);
       // } this.logger.info('No record found. creating User record');
-      return this.addUser(searchParam, callback);
+      return this.addUser(param, callback);
+      }
     }, (err)=>{ 
-      console.log("An error occured")
-      console.log("Error", searchParam.query.match.msisdn)
+      console.log("An error occured", err)
+      // console.log("Error", searchParam.query.match.msisdn)
     
     });
   }
