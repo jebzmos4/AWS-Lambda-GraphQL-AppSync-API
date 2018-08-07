@@ -46,6 +46,7 @@ try {
             sh "cp env.yml env.yml.tmp"
             sh "python /bin/envswaper/main.py path env.yml serverless dev"
             sh "export AWS_DEFAULT_REGION=eu-west-1"
+            sh "serverless deploy --region eu-west-1 --stage dev"
             sh "serverless deploy --region eu-west-1 --stage dev  > serverless-export.txt"
             sh "rm -rf env.yml"
             sh "mv env.yml.tmp env.yml"
