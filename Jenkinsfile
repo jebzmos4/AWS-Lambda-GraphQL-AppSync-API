@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
 
 def displayName = env.JOB_NAME
 def bucketName = "identity-mapping"
-def branchName = env.BRANCH_NAME = "dev"
+def branchName = env.BRANCH_NAME == "dev"
 def start = new Date()
 def err = null
 
