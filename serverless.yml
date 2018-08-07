@@ -1,11 +1,13 @@
-service: my-service
+service: identity-mapper
 
-app: myapp-dev
+app: identity_mapper_dev
 tenant: tolufakiyesi
 
 provider:
   name: aws
   runtime: nodejs8.10
+  environment: ${file(env.yml):${self:provider.stage}}
+  region: eu-west-1
 functions:
   receives_payload:
     handler: handler.receives_payload
