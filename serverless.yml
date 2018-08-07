@@ -1,6 +1,6 @@
-service: my-service
+service: identity-mapper
 
-app: myapp-dev
+app: identity_mapper_dev
 tenant: tolufakiyesi
 
 provider:
