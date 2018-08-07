@@ -44,10 +44,10 @@ try {
 
         stage ("Deploy to Serverless"){
             sh "cp env.yml env.yml.tmp"
-            sh "python /bin/envswaper/main.py path env.yml serverless ${branchName}"
+            sh "python /bin/envswaper/main.py path env.yml serverless dev"
             sh "export AWS_DEFAULT_REGION=eu-west-1"
             sh "npm install && npm install serverless"
-            sh "serverless deploy --region eu-west-1 --stage ${branchName} > serverless-export.txt"
+            sh "serverless deploy --region eu-west-1 --stage dev  > serverless-export.txt"
             sh "rm -rf env.yml"
             sh "mv env.yml.tmp env.yml"
             def response = sh(returnStdout: true, script: "grep -r -A2 'endpoints' serverless-export.txt")
