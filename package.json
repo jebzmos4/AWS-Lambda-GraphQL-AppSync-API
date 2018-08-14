@@ -11,13 +11,18 @@
   "dependencies": {
     "bodybuilder": "^2.2.11",
     "dotenv": "^6.0.0",
+    "elastic-builder": "^2.0.1",
     "elasticsearch": "^15.1.1",
     "get-json": "^1.0.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
-    "uuid": "^3.3.2"
+    "qs": "^6.5.2",
+    "ramda": "^0.25.0",
+    "uuid": "^3.3.2",
+    "winston": "^2.4.1"
   },
   "devDependencies": {
+    "logger": "0.0.1",
     "serverless-offline": "^3.25.6"
   }
 }
