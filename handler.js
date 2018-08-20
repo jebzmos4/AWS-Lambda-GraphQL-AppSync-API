@@ -1,3 +1,7 @@
+/**
+ * Created by Jebutu Morifeoluwa on 20/08/2018.
+ */
+
 const client = require('./lib/connector');
 const config = require('./config/config');
 const service = require('./services/users');
@@ -6,6 +10,8 @@ var util = require('./lib/utility');
 
 const logger = logging.create(config.logging);
 const userservice = new service(client);
+
+console.log(client);
 
 
 module.exports = {

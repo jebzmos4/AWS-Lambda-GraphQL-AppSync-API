@@ -1,3 +1,7 @@
+/**
+ * Created by Jebutu Morifeoluwa on 20/08/2018.
+ */
+
 client = require('../lib/connector');
 const ESHelper = require('../lib/ESHelper');
 const config = require('../config/config');

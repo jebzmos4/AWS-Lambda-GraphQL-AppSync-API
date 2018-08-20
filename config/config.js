@@ -14,7 +14,7 @@ const config = {
   elasticSearch: {
     connection: {
       host: process.env.ELASTICSEARCH_HOST,
-      port: process.env.ELASTICSEARCH_PORT
+      port: process.env.ELASTICSEARCH_PORT,
     },
     documents: {
         index: 'identity-mapping-engine',
