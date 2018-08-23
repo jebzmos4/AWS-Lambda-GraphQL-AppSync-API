@@ -1,7 +1,7 @@
-service: identity-mapping-engine
+service: identity-mapper
 
-app: identity_mapping_engine
-tenant: tolufakiyesi || Morifeoluwa Jebutu
+app: identity_mapper_dev
+tenant: tolufakiyesi
 
 provider:
   name: aws
@@ -9,14 +9,17 @@ provider:
   environment: ${file(env.yml):${self:provider.stage}}
   region: eu-west-1
 functions:
-  receives_payload:
-    handler: handler.Controller
-    events:    
+  record:
+    handler: handler.record
+    events: 
       - http:
-          path: /user
+          path: /
+          method: get   
+      - http:
+          path: /record
           method: get
       - http:
-          path: /user
+          path: /record
           method: post
 plugins:
 - serverless-offline

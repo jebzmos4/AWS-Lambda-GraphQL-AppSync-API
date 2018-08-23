@@ -25,13 +25,13 @@ Then deploy through serverless using:
 
 Local Endpoints: 
 
-`http://localhost:3000/user`
+`http://localhost:3000/record`
 
 method: GET
 
 details: Returns a list of all users saved
 
-`http://localhost:3000/user`
+`http://localhost:3000/record`
 
 method: POST
 

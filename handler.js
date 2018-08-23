@@ -16,8 +16,7 @@ console.log(client);
 
 module.exports = {
 
-  Controller: (event, context, callback) => {
-    if (event != ""){
+    record: (event, context, callback) => {
       logger.info('ID ', event.httpMethod)
       
       switch(event.httpMethod){
@@ -58,8 +57,5 @@ module.exports = {
               logger.error("Error: unsupported HTTP method (" + event.httpMethod + ")");
               callback(null, { statusCode: 501 })
         }   
-    }else{
-      context.succeed("No Payload received yet!!!")
-    }
   },
 }
