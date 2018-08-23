@@ -1,58 +1,65 @@
-var client = require('./connector');
+/**
+ * Created by Jebutu Morifeoluwa on 20/08/2018.
+ */
 
-var service = require('./services/users');
-
-var userservice = new service(client);
-
-var querystring = require('querystring');
-
-console.log('Loading function');
+const client = require('./lib/connector');
+const config = require('./config/config');
+const service = require('./services/users');
+const logging = require('./lib/logging');
 var util = require('./lib/utility');
+
+const logger = logging.create(config.logging);
+const userservice = new service(client);
+
+console.log(client);
 
 
 module.exports = {
 
-
-  receives_payload: (event, context, callback) => {
+  Controller: (event, context, callback) => {
     if (event != ""){
-      console.log('ID ', event.httpMethod)
+      logger.info('ID ', event.httpMethod)
       
       switch(event.httpMethod){
           case "GET":
-              userservice.getAllUsers(function(resp){
-                  callback(null, {headers: {"content-type": "application/json"}, body: JSON.stringify(util.handleResponse({err: false, message: "Successfully Returned", data: resp}))});
+              userservice.getAllRecords((resp) => {
+                  callback(null, {
+                    headers: {"content-type": "application/json"}, 
+                    body: JSON.stringify(util.handleResponse({
+                        err: false, 
+                        message: "Successfully Returned", 
+                        data: resp
+                    }))
+                });
               });            
               break;
   
           case "POST":
-              // console.log("Respose =>",event.body);
-              var query = querystring.parse(event.body);
-              var msisdn =  (query || {}).msisdn || false;
-              var cookieId =  (query || {}).cookieId || false;
-              var deviceId =  (query || {}).deviceId || false;
-              // var errors = util.checkRequestBody(JSON.parse(event.body), []);
-              var errors = util.checkRequestBody(event.body, []);
-              if(errors){
-                  callback(null, {headers: {"content-type": "application/json"}, body: JSON.stringify(util.handleResponse({err: true, message: "Invalid Parameters", data: errors}))})
-              }else{
-                var data = { msisdn: msisdn, cookieId: cookieId, deviceId: deviceId};
-                  userservice.getSingleUser( data,
-                  function(resp){
-                      callback(null, {headers: {"content-type": "application/json"}, body: JSON.stringify(util.handleResponse({err: false, message: "Successfully Returned", data: resp}))});
-                  });
-              }            
-              break;
+            const query = JSON.parse(event.body);
+                userservice.getSingleRecord( query,
+                (resp) => {
+                    callback(null, {
+                        headers: {"content-type": "application/json"}, 
+                        body: JSON.stringify(util.handleResponse({
+                            err: false, 
+                            message: "Successfully Returned A record", 
+                            data: { "_index": resp._index,
+                            "_type": resp._type,
+                            "_id": resp._id 
+                        }
+                        })
+                    )}
+                    );
+                });           
+            break;
           
           default:
               // Send HTTP 501: Not Implemented
-              console.log("Error: unsupported HTTP method (" + event.httpMethod + ")");
+              logger.error("Error: unsupported HTTP method (" + event.httpMethod + ")");
               callback(null, { statusCode: 501 })
-  
-      }
-      
+        }   
     }else{
       context.succeed("No Payload received yet!!!")
     }
   },
-
 }

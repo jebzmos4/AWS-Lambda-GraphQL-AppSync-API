@@ -1,32 +1,32 @@
 /* eslint no-underscore-dangle: 0 */
-
-
-const Sanitizer = require('../lib/sanitizer');
-// const config = require('../config/settings');
-const uuid = require('uuid');
-const moment = require('moment');
-
 /**
  * Created by Jebutu Morifeoluwa on 19/06/2018.
  */
+
+const R = require('ramda');
+const Sanitizer = require('../lib/sanitizer');
+const config = require('../config/config');
+const uuid = require('uuid');
+const moment = require('moment');
+const logging = require('../lib/logging');
+
+const logger = logging.create(config.logging);
 
 class UserService {
   /**
        * The constructor
        *
-       * @param logger
        * @param elasticSearchClient
        */
   constructor(elasticSearchClient) {
-    // this.logger = logger;
     this.elasticSearchClient = elasticSearchClient;
-    // this.index = config.elasticSearch.documents.userProfile.index;
-    // this.type = config.elasticSearch.documents.userProfile.type;
-    this.index = 'identity';
-    this.type = 'user';
+    this.index = config.elasticSearch.documents.index;
+    this.type = config.elasticSearch.documents.type;
+    this.logger = logger;
   }
 
-  addUser(params, callback) {
+  addRecord(params, callback) {
+    this.logger.info('Adding new record');
     const data = params;
     let { msisdn } = data;
     msisdn = Sanitizer.normalizeMSISDN(msisdn);
@@ -41,7 +41,7 @@ class UserService {
       body: params
     },function(err,resp,status) {
       if(err) {
-          console.log(err);
+          this.logger.error(err);
       }
       else {
           callback(resp);
@@ -52,111 +52,96 @@ class UserService {
   /**
    * Get all user records based on search parameters from ElasticSearch
    * @param params (Object)
-   * @returns Promise
    */
-  getAllUsers(callback) {
+  getAllRecords(callback) {
+    this.logger.info('Getting all records');
     return this.elasticSearchClient.search({
       index: this.index,
       type: this.type,
-    },function (error, response,status) {
+    },function (error, response, status) {
       if (error){
-          console.log("search error: "+error)
+          this.logger.error(error);
       }
       else {
           callback(response.hits.hits);
       }
-  });
+    });
   }
 
 
   /**
-   * This returns a single user's
-   * record from ElasticSearch
+   * This returns a single record from ElasticSearch
    * @param param (String)
-   * @returns Promise
    */
-  getSingleUser(param, callback) {
-    let searchParam = param;
-    let response;
-    const { msisdn, cookieId, deviceId } = param;
-    if (msisdn) {
-      searchParam.msisdn = Sanitizer.normalizeMSISDN(msisdn);
+  getSingleRecord(param, callback) {
+    this.logger.info('Getting a single record', param);
+    if (!R.has('msisdn', param) && !R.has('cookieId', param) && R.has('deviceId', param)) {
+      return Response.failure({ message: 'Param cannot be empty' });
     }
-    // if (msisdn && deviceId && cookieId) {      
-    if ((msisdn && deviceId) || (msisdn && cookieId) || (cookieId && deviceId)) {
-      
-      response = this.elasticSearchClient.search({
-        index: this.index,
-        type: this.type,
-        body: {
-          query: {
-            bool: {
-              should: [
-                { match: { msisdn: searchParam.msisdn } },
-                { match: { cookieId: searchParam.cookieId } },
-                { match: { deviceId: searchParam.deviceId } },
-              ],
-              minimum_should_match: 2
+    this.logger.info('Querying single user');
+    let body = `${param.msisdn} ${param.deviceId} ${param.cookieId}`;
+    return this.elasticSearchClient.search({
+      index: this.index,
+      type: this.type,
+      body: {
+        "query": {
+            "bool": {
+                "should": [
+                    {
+                        "match": {
+                            "msisdn": {
+                                "query": param.msisdn || ""
+                            }
+                        }
+                    },
+                    {
+                        "match": {
+                            "cookieId": {
+                                "query": param.cookieId || ""
+                            }
+                        }
+                    },
+                    {
+                        "match": {
+                            "deviceId": {
+                                "query": param.deviceId || ""
+                            }
+                        }
+                    }
+                ]
             }
-          }
+        },
+        "from": 0,
+        "size": 1
+    }
+    }).then((res) => {
+      if (res.hits.total !== 0) {
+        this.logger.info('User found for this params');
+        return this.updateRecord(param, res,callback );
+      } this.logger.info('No user found for this params');
+      return this.addRecord(param, callback);
+    }).catch(err => console.error(err));
+  }
+
+  updateRecord(param, res, callback) {
+    this.logger.info('Updating with new params (if any)');
+    const msisdn = Sanitizer.normalizeMSISDN(param.msisdn);
+    const tagId = res.hits.hits[0]._id;
+    return this.elasticSearchClient.update({
+      index: this.index,
+      type: this.type,
+      id: tagId,
+      body: {
+        doc: {
+          msisdn,
+          deviceId: param.deviceId || '',
+          cookieId: param.cookieId || '',
+          email: param.email || '',
+          bvn: param.bvn || '',
+          account: param.account || ''
         }
-      });
-      
-    }     
-    else {
-      if (msisdn) {
-        searchParam = msisdn;
-      } else if (cookieId) {
-        searchParam = cookieId;
-      } else if (deviceId) {
-        searchParam = deviceId;
       }
-      searchParam = Sanitizer.getFormattedESQuery(null, searchParam);
-      response = this.elasticSearchClient.search({
-        index: this.index,
-        type: this.type,
-        body: searchParam
-      });
-    }
-    return response.then((data) => {
-      
-      if (data.hits.total !== 0) {
-        console.log("Found Hits");
-        // this.logger.info('Data found for this params. Updated with new params (if any)');
-        const tagId = data.hits.hits[0]._id;
-        return this.elasticSearchClient.update({
-          index: this.index,
-          type: this.type,
-          id: tagId,
-          body: {
-            doc: {
-              msisdn: param.msisdn,
-              deviceId: param.deviceId || '',
-              cookieId: param.cookieId || '',
-              email: param.email || '',
-              bvn: param.bvn || '',
-              account: param.account || ''
-            }
-          }
-        }, function(err,resp,status) {
-          if(err) {
-              console.log(err);
-          }
-          else {
-              callback(resp);
-          }
-        });
-      }else{
-        console.log("Did not find hits");
-        console.log("Search Params: ", param);
-      // } this.logger.info('No record found. creating User record');
-      return this.addUser(param, callback);
-      }
-    }, (err)=>{ 
-      console.log("An error occured", err)
-      // console.log("Error", searchParam.query.match.msisdn)
-    
-    });
+    }).then(result => callback(result)).catch(err => callback(err));
   }
 }
 module.exports = UserService;

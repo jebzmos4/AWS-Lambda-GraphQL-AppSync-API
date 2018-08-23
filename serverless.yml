@@ -1,14 +1,16 @@
-service: my-service
+service: identity-mapping-engine
 
-app: myapp-dev
-tenant: tolufakiyesi
+app: identity_mapping_engine
+tenant: tolufakiyesi || Morifeoluwa Jebutu
 
 provider:
   name: aws
   runtime: nodejs8.10
+  environment: ${file(env.yml):${self:provider.stage}}
+  region: eu-west-1
 functions:
   receives_payload:
-    handler: handler.receives_payload
+    handler: handler.Controller
     events:    
       - http:
           path: /user

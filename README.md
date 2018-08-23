@@ -1,10 +1,10 @@
 # IDENTITY MODULE LAMBDA FUNCTION #
 
-A serverless lambda equivalent of the [identity module](https://bitbucket.org/terragonengineering/identity-mapping-engine)
+A serverless lambda equivalent of the [Identity Mapping Engine](https://bitbucket.org/terragonengineering/identity-mapping-engine)
 
 ### About ###
 
-* This project accepts msisdn, deviceId, or cookieId and returns a unique id that can be used to reference the particular user.
+* This project accepts msisdn, deviceId, cookieId as the main params and account, bvn and email as secondary params then returns a unique tap id that can be used to reference the particular user.
 * Version - 1.0.0
 
 ### Installation ###
@@ -15,7 +15,7 @@ Install the dependencies using:
 
 Initialize the elasticsearch indices with the proper mappings with:
 
-`node init_db`
+`node config/setup`
 
 Then deploy through serverless using:
 
@@ -23,7 +23,7 @@ Then deploy through serverless using:
 
 ### Usage ###
 
-Endpoints: 
+Local Endpoints: 
 
 `http://localhost:3000/user`
 
@@ -47,4 +47,5 @@ details: Saves a user if not yet saved and returns the saved user if the user al
 ### Who do I talk to? ###
 
 * [Tolu Fakiyesi: tfakiyesi@terragonltd.com](mailto:tfakiyesi@terragonltd.com)
+* [Morifeoluwa Jebutu: mjebutu@terragonltd.com](mailto:mjebutu@terragonltd.com)
 * [tech@terragonltd.com](mailto:tech@terragonltd.com)
