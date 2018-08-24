@@ -9,8 +9,8 @@ provider:
   environment: ${file(env.yml):${self:provider.stage}}
   region: eu-west-1
 functions:
-  record:
-    handler: handler.record
+  getRecord:
+    handler: handler.getRecord
     events: 
       - http:
           path: /
@@ -18,8 +18,13 @@ functions:
       - http:
           path: /record
           method: get
+          cors: true
+  postRecord:
+    handler: handler.postRecord
+    events:
       - http:
           path: /record
           method: post
+          cors: true
 plugins:
 - serverless-offline
