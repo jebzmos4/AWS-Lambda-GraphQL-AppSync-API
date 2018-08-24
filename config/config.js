@@ -13,8 +13,8 @@ const config = {
   },
   elasticSearch: {
     connection: {
-      host: process.env.ELASTICSEARCH_HOST,
-      port: process.env.ELASTICSEARCH_PORT,
+      host: process.env.ELASTIC_HOST_STAGING,
+      port: process.env.ELASTIC_PORT_STAGING,
     },
     documents: {
         index: 'identity-mapping-engine',
