@@ -9,12 +9,16 @@ provider:
   environment: ${file(env.yml):${self:provider.stage}}
   region: eu-west-1
 functions:
-  getRecord:
-    handler: handler.getRecord
-    events: 
+  base:
+    handler: handler.index
+    events:
       - http:
           path: /
-          method: get   
+          method: get
+          cors: true
+  getRecord:
+    handler: handler.getRecord
+    events:   
       - http:
           path: /record
           method: get

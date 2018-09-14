@@ -16,6 +16,17 @@ console.log(client);
 
 module.exports = {
 
+    index: (event, context, callback) => {
+        callback(null, {
+        headers: {"content-type": "application/json"}, 
+        body: JSON.stringify(util.handleResponse({
+            err: false, 
+            message: "Welcome to the Identity Mapping Lambda", 
+            data: ""
+            }))
+        });
+    },
+
     getRecord: (event, context, callback) => {
         userservice.getAllRecords((resp) => {
             callback(null, {
