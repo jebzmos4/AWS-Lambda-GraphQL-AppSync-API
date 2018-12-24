@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # IDENTITY MODULE LAMBDA FUNCTION #
 
 A serverless lambda equivalent of the [Identity Mapping Engine](https://bitbucket.org/terragonengineering/identity-mapping-engine)
@@ -49,3 +50,7 @@ details: Saves a user if not yet saved and returns the saved user if the user al
 * [Tolu Fakiyesi: tfakiyesi@terragonltd.com](mailto:tfakiyesi@terragonltd.com)
 * [Morifeoluwa Jebutu: mjebutu@terragonltd.com](mailto:mjebutu@terragonltd.com)
 * [tech@terragonltd.com](mailto:tech@terragonltd.com)
+=======
+# AWS-Lambda-GraphQL-AppSync-API
+This is repository to demonstrate how to use AWS Lambda with GraphQL and AppSync
+>>>>>>> b2cf06ed85799c05d4f3720c44b5076c44611f7e
