@@ -1,28 +1,32 @@
-AWSTemplateFormatVersion : '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: An AWS lambda function that for generating unique tap-ids
-
-Globals:
-    Function:
-        Timeout: 200
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: A starter AWS Lambda function.
 
 Resources:
-  Users:
-    Type: AWS::Serverless::Function
+  HelloWorld:
+    Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs8.10
-      Events:
-        ListUsers:
-          Type: Api
-          Properties:
-            Path: /user
-            Method: get        
-        GetUsers:
-          Type: Api
-          Properties:
-            Path: /user
-            Method: post
-      Environment:
-        Variables: 
-          S3_BUCKET: bucket-name
+      Runtime: nodejs6.10
+      CodeUri: .
+      Description: A starter AWS Lambda function.
+      MemorySize: 128
+      Timeout: 3
+      Policies:
+        - SESSendBouncePolicy:
+            IdentityName: !Ref IdentityNameParameter
+    
+  Users:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs6.10
+      Description: This lambda function returns a leads from the database
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+              Resource: !GetAtt DynamoTableLeads.Arn
+      

@@ -2,33 +2,53 @@
  * Created by Jebutu Morifeoluwa on 20/08/2018.
  */
 
-const client = require('./lib/connector');
+const express = require('express');
+const graphqlHTTP = require('express-graphql');
+
 const config = require('./config/config');
-const service = require('./services/users');
-const logging = require('./lib/logging');
-var util = require('./lib/utility');
+const Service = require('./services/users');
+const util = require('./lib/utility');
+const schema = require('./lib/graphql-schema');
+const dynamo = require('./lib/dynamoHelper');
 
-const logger = logging.create(config.logging);
-const userservice = new service(client);
+const userService = new Service();
 
-console.log(client);
+// The root provides a resolver function for each API endpoint
+const root = {
+  base: () => {
+    lambda.index()
+  },
+  getUsers: () => {
+      lambda.getUser()
+  },
+  createUsers: () => {
+    lambda.createUser()
+}
+};
 
+const app = express();
+app.use('/', graphqlHTTP({
+  schema: schema,
+  rootValue: root,
+}));
+app.listen(4000);
+console.log('Running a GraphQL API server at localhost:4000/');
 
-module.exports = {
+lambda = {
 
-    index: (event, context, callback) => {
-        callback(null, {
+    index: (callback) => {
+        return({
         headers: {"content-type": "application/json"}, 
         body: JSON.stringify(util.handleResponse({
             err: false, 
-            message: "Welcome to the Identity Mapping Lambda", 
+            message: "Welcome to the AWS GRAPHQL Lambda", 
             data: ""
             }))
         });
     },
 
-    getRecord: (event, context, callback) => {
-        userservice.getAllRecords((resp) => {
+    getUser: (event, context, callback) => {
+        userService.getAllRecords((resp) => {
             callback(null, {
             headers: {"content-type": "application/json"}, 
             body: JSON.stringify(util.handleResponse({
@@ -40,9 +60,10 @@ module.exports = {
         });
     },
   
-    postRecord: (event, context, callback) => {
+    createUser: (event, context, callback) => {
+        console.log(event);
         const query = JSON.parse(event.body);
-        userservice.getSingleRecord( query,
+        userService.createUser( query,
         (resp) => {
             callback(null, {
                 headers: {"content-type": "application/json"}, 

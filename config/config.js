@@ -3,7 +3,7 @@
  */
 
 
-const appName = 'Identity Manager Service';
+const appName = 'AWS-GRAPHQL-DYNAMODB LAMBDA API';
 
 const config = {
   app_name: appName,
@@ -11,18 +11,9 @@ const config = {
     level: process.env.LOG_LEVEL || 'info',
     console: process.env.LOG_ENABLE_CONSOLE || true
   },
-  elasticSearch: {
-    connection: {
-      host: process.env.ELASTIC_HOST_STAGING,
-      port: process.env.ELASTIC_PORT_STAGING,
-    },
-    documents: {
-        index: 'identity-mapping-engine',
-        type: 'users'
-    },
-    queryLimit: process.env.ELASTICSEARCH_QUERY_LIMIT,
-    apiVersion: '5.5',
-    loggingLevel: process.env.ELASTICSEARCH_LOGGING_LEVEL || 'trace',
+  dynamodb: {
+    region: process.env.DYNAMODB_REGION,
+    tableName: process.env.DYNAMODB_TABLE_NAME
   }
 };
 
